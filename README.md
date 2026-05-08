@@ -1,4 +1,5 @@
 ###Mô hình source code của nhóm mình: mọi người có gắng chia các màn hình ra để dễ sửa lỗi tránh gom nhiều màn hình vào 1 widget nha!!!!
+Mô hình ví dụ dưới đây nha .dart có thể thay đổi theo màn hình mn làm
 lib/
  ├── helpers/
  │    └── api_helper.dart
