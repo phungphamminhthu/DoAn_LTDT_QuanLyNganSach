@@ -1,16 +1,26 @@
-# doan_quanlychitieu
+###Mô hình source code của nhóm mình: mọi người có gắng chia các màn hình ra để dễ sửa lỗi tránh gom nhiều màn hình vào 1 widget nha!!!!
+Mô hình ví dụ dưới đây nha .dart có thể thay đổi theo màn hình mn làm
+lib/
+ ├── helpers/
+ │    └── api_helper.dart
+ │
+ ├── models/
+ │    ├── user.dart
+ │    ├── wallet.dart
+ │    ├── transaction.dart
+ │    └── category.dart
+ │
+ ├── screens/
+ │    ├── home_screen.dart
+ │    ├── wallet_screen.dart
+ │    └── transaction_screen.dart
+ │
+ └── main.dart
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+ ## Cách chạy
+- Clone repo: `git clone https://github.com/phungphamminhthu/DoAn_LTDT_QuanLyNganSach.git`
+- Mở bằng Android Studio và chạy máy ảo của Genymotion: Google Nexus 4
+- Chạy file main để bắt đầu chương trình
+- Tạo branch riêng 
+- Pull code trước khi viết code để cập nhật code mới
+- Chạy ổn phần nào thì push lên lại project cho mọi người dùng
