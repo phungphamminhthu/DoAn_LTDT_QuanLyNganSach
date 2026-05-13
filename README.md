@@ -24,4 +24,5 @@ lib/
 - Tạo branch riêng 
 - Pull code trước khi viết code để cập nhật code mới
 - Chạy ổn phần nào thì push lên lại project cho mọi người dùng
-- LINK API: https://expense-api-i4so.onrender.com/{các bảng trong SQLite}
+- LINK API: https://expense-api-i4so.onrender.com/ {các bảng trong SQLite}
+- MainAppScreen sẽ là làm hình chính với các giao diện 
