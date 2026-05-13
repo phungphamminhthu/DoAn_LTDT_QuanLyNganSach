@@ -4,7 +4,7 @@ lib/
  ├── helpers/
  │    └── api_helper.dart
  │
- ├── models/
+ ├── pages/
  │    ├── user.dart
  │    ├── wallet.dart
  │    ├── transaction.dart
