@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart';
 
 
@@ -178,8 +182,7 @@ class ApiHelpers {
           "password": password.trim(),
 
           // avatar mặc định
-          "avatar":
-          "https://i.pravatar.cc/300",
+          "avatar": "https://i.pravatar.cc/300",
 
         }),
       );
@@ -250,9 +253,7 @@ class ApiHelpers {
 
         }),
       );
-
       return res.statusCode == 200;
-
     } catch(e) {
 
       return false;
@@ -336,20 +337,40 @@ class ApiHelpers {
       String newPassword,
       ) async {
     try {
-      var res = await http.put(
-        Uri.parse('$baseUrl/users/$userId/password'),
+      var res = await http.get(
+        Uri.parse('$baseUrl/users/$userId'),
+      );
+
+      if (res.statusCode != 200) return false;
+
+      var user = jsonDecode(res.body);
+
+      String dbPassword = (user["password"] ?? "").toString().trim();
+      String inputPassword = oldPassword.trim();
+
+      print("DB PASSWORD => '$dbPassword'");
+      print("INPUT PASSWORD => '$inputPassword'");
+
+      // ⚡ so sánh an toàn
+      if (dbPassword != inputPassword) {
+        return false;
+      }
+
+      var updateRes = await http.patch(
+        Uri.parse('$baseUrl/users/$userId'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "oldPassword": oldPassword,
-          "newPassword": newPassword,
+          "password": newPassword.trim(),
         }),
       );
 
-      return res.statusCode == 200;
+      return updateRes.statusCode == 200;
     } catch (e) {
+      print("ERROR updatePassword_v2: $e");
       return false;
     }
   }
+
   /// lấy thông báo theo user
   static Future<List<dynamic>> getNotifications(int userId,) async {
     try {
@@ -384,6 +405,129 @@ class ApiHelpers {
       );
     } catch(e) {
       print(e);
+    }
+  }
+
+  static Future<bool> requestCameraPermission() async{
+    //trạng thái hiện tại của quyền camera
+    var status = await Permission.camera.status;
+    if(status.isDenied){
+      //tiến hành xin quyền
+      status = await Permission.camera.request();
+    }
+    if(status.isPermanentlyDenied){
+      //redirect sang setting cua OS Device
+      openAppSettings();
+      return false;
+    }
+    return status.isGranted;
+  }
+
+  static Future<bool> requestMediaPermission() async{
+    ///Trạng thái hiện tại của quyền cammera
+    var  status = await Permission.mediaLibrary.status;
+    if(status.isDenied){
+      //tiến hành xin quyền
+      status = await Permission.mediaLibrary.request();
+    }
+    if(status.isPermanentlyDenied){
+      //Redirect sang setting của OS Device
+      openAppSettings();
+      return false;
+    }
+    return status.isGranted;
+  }
+
+  //lưu avatar xún Api
+  static Future<bool> updateAvatarApi(int userId, String avatarUrl) async {
+    try {
+      var res = await http.patch(
+        Uri.parse('${ApiHelpers.baseUrl}/users/$userId'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"avatar": avatarUrl}),
+      );
+      return res.statusCode == 200;
+    } catch (e) {
+      print("ERROR updateAvatarApi: $e");
+      return false;
+    }
+
+  }
+  //lưu local
+  static Future<void> updateAvatarLocal(int userId, String avatarUrl) async {
+    final db = await ApiHelpers().initDB();
+    await db.update(
+      'users',
+      {"avatar": avatarUrl},
+      where: "id = ?",
+      whereArgs: [userId],
+    );
+  }
+
+  static Future<String?> uploadImage(File imageFile) async {
+    try {
+      String fileName = "avatars/${DateTime.now().millisecondsSinceEpoch}.jpg";
+      Reference ref = FirebaseStorage.instance.ref().child(fileName);
+      UploadTask uploadTask = ref.putFile(imageFile);
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      print("ERROR uploadImage: $e");
+      return null;
+    }
+  }
+
+  //lấy budget
+  static Future<List<dynamic>> getBudgets(int userId) async {
+    try {
+      var res = await http.get(
+        Uri.parse('$baseUrl/budgets?user_id=$userId'),
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  //thêm budget
+  static Future<bool> addBudget({
+    required int userId,
+    required int categoryId,
+    required int walletId,
+    required double amount,
+  }) async {
+    try {
+      var res = await http.post(
+        Uri.parse('$baseUrl/budgets'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "user_id": userId,
+          "category_id": categoryId,
+          "wallet_id": walletId,
+          "amount": amount,
+          "spent_amount": 0,
+          "period_type": "monthly",
+          "period_start": DateTime.now().toIso8601String(),
+          "period_end": DateTime.now().add(const Duration(days: 30)).toIso8601String(),
+        }),
+      );
+      return res.statusCode == 201;
+    } catch (e) {
+      print("ERROR addBudget: $e");
+      return false;
+    }
+  }
+  //lấy categories
+  static Future<List<dynamic>> getCategories() async {
+    try {
+      var res = await http.get(
+        Uri.parse('$baseUrl/categories'),
+      );
+
+      return jsonDecode(res.body);
+
+    } catch (e) {
+      return [];
     }
   }
 

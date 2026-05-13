@@ -99,6 +99,7 @@ class MainAppState extends State<MainAppScreen>{
                     : null,
               ),
             ),
+
             const SizedBox(width: 10),
             /// username
             Expanded(
@@ -194,42 +195,36 @@ class MainAppState extends State<MainAppScreen>{
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
       bottomNavigationBar: BottomNavigationBar(
-        onTap: (value){
-          //lưu lại cái index mà user click
-          setState(() {
-            currentMenuItemIndex = value;
-          });
-          print(value);
-        } ,
-          type: BottomNavigationBarType.fixed,
-
-          selectedItemColor: Colors.blue,
-
-          unselectedItemColor: Colors.grey,
-        currentIndex: currentMenuItemIndex ,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long),
-              label: 'Sổ thu chi',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet_outlined),
-              label: 'Ví của tôi',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add_circle, size: 35),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.pie_chart_outline),
-              label: 'Báo cáo',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Cài đặt',
-            ),
-          ]
+        onTap: (value) async {
+          if (value == 4) { // index của SettingPage
+            var newAvatar = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => SettingPage(user: widget.user)),
+            );
+            if (newAvatar != null) {
+              setState(() {
+                widget.user['avatar'] = newAvatar;
+              });
+            }
+          } else {
+            setState(() {
+              currentMenuItemIndex = value;
+            });
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        currentIndex: currentMenuItemIndex,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'Sổ thu chi'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet_outlined), label: 'Ví của tôi'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle, size: 35), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline), label: 'Báo cáo'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Cài đặt'),
+        ],
       ),
+
 
 
 
@@ -270,8 +265,6 @@ class MainAppState extends State<MainAppScreen>{
       );
     }
 
-    return  SettingPage(
-      user: widget.user,
-    );
+    return SettingPage(user: widget.user);
   }
 }
